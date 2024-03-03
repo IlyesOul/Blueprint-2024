@@ -54,11 +54,12 @@ age = float(input("Credit History Age: "))
 bal = float(input("Monthly Balance: "))
 
 # Predicted Credit Score
-credit = forest.predict([income, cash_salary, num_of_bank_acc, num_cards, rate, num_loans, days_delayed, num_payments, credit, debt, age, bal])
+credit = forest.predict([[income, cash_salary, num_of_bank_acc, num_cards, rate, num_loans, days_delayed, num_payments, credit, debt, age, bal]])
 
+print(f"Your predicted credit score is: {credit[0]}")
 
 # Doesn't want to invest path
-decision = int(input("Would you say that you want to invest? (Enter a 0 for no or a 1 for yes"))
+decision = int(input("Would you say that you want to invest? (Enter a 0 for no or a 1 for yes) "))
 
 if decision == 0:
 
@@ -66,14 +67,18 @@ if decision == 0:
         print(f"Ok, we suggest that you try and improve your credit score by paying bills on time, "
               f"strategically paying credit balances, and getting credit for utility and rent payments!")
         print()
-        print(f"You may also want to check out resources like NerdWallet, Experian, Investopedia, and online forums!")
+        print(f"You may also want to check out resources like NerdWallet, Experian, Investopedia, and online forums to "
+              f"find ways to improve your credit score!")
 
     if credit[0] == "Standard" or credit[0] == "Good":
         print("Ok! Your credit score is in a good spot to begin investing! We advice that "
               "you begin researching ways to invest your money, as letting it sit will only deprecate it's value")
 
-        print("Some investment opportunities include, but aren't limited to stocks, bonds, real estate, commodities, and "
-              "foreign currency")
+        print("Some investment opportunities include, but aren't limited to stocks, "
+              "bonds, real estate, commodities, and foreign currency")
+        print(f"You may also want to check out resources like Fidelity Investments, Stock Exchange, Investopedia, and "
+              f"online forums to begin your journey in investment!")
+
 
 elif decision == 1:
     cash_to_invest = int(input("Great! How much CASH would you say that you could invest?"))
@@ -134,7 +139,7 @@ elif decision == 1:
             sorted_dict = {keys[i]: values[i] for i in sorted_value_index}
 
             if investment_amount > 140000:
-                
+
                 print(f"Great news! We have a list of high-risk higher-price stocks just for you!")
                 print(f"{sorted_dict.values()[:len(sorted_dict.values())/2]}")
 
@@ -142,5 +147,4 @@ elif decision == 1:
                 # Suggest pricey stocks
                 print(f"Great news! We have a list of high-risk lower-price stocks just for you!")
                 print(f"{sorted_dict.values()[[len(sorted_dict.values())/2]:]}")
-
 
