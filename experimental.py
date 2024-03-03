@@ -1,22 +1,29 @@
 import requests
 import json
 
-url = 'https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=2RP8A05B6JJ2RP71'
+url = 'https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=GN93EPRI42VAHGHX'
 r = requests.get(url)
 data = r.json()
-
+print(data)
 riskiest = []
 
-for entry in data["top_gainers"][:5]:
+for entry in data["top_gainers"][:7]:
 	riskiest.append(entry["ticker"])
 
-for entry in data["top_losers"][:5]:
+for entry in data["top_losers"][:7]:
 	riskiest.append(entry["ticker"])
 
-print(riskiest)
 
-ticker_response = requests.get("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=tesco&apikey"
-                               "=2RP8A05B6JJ2RP71").json()
+risky_companies = []
 
-print(ticker_response)
+for ticker in riskiest:
+	url = f"https://api.polygon.io/v3/reference/tickers?ticker={ticker}&active=true&apiKey=VFSwKNWbH7pv7Yp98ayguccA6KVAJYjr"
+	print(requests.get(url).status_code)
+	if requests.get(url).status_code == 200:
+		ticker_response = requests.get(url).json()
+		risky_companies.append(ticker_response["results"][0]["name"])
+
+print(risky_companies)
+
+
 
