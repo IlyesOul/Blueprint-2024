@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 import requests
 import yfinance as yf
 
+
 data = pd.read_csv("data.csv")
 
 data["Credit_Mix"] = data["Credit_Mix"].map({"Standard": 1,
@@ -105,46 +106,32 @@ elif decision == 1:
             investment_amount = loan_amount+cash_to_invest
             print(f"Including your personal cash, your investment capital is roughly {investment_amount}")
 
-            url = 'https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=GN93EPRI42VAHGHX'
-            r = requests.get(url)
-            data = r.json()
-            riskiest = []
+            response_json = requests.get(
+                "https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey=660b686a5741c3a14db31b0f2dc9ce41").json()
+            top_7_winners = response_json[:7]
 
-            for entry in data["top_gainers"][:7]:
-                riskiest.append(entry["ticker"])
-
-            for entry in data["top_losers"][:7]:
-                riskiest.append(entry["ticker"])
+            response_json = requests.get(
+                "https://financialmodelingprep.com/api/v3/stock_market/losers?apikey=660b686a5741c3a14db31b0f2dc9ce41").json()
+            top_7_losers = response_json[len(response_json) - 7:]
 
             # Risky companies is a list of companies that are risky, regardless of price
             risky_companies = []
 
-            for ticker in riskiest:
-                url = f"https://api.polygon.io/v3/reference/tickers?ticker={ticker}&active=true&apiKey=VFSwKNWbH7pv7Yp98ayguccA6KVAJYjr"
-                print(requests.get(url).status_code)
-                if requests.get(url).status_code == 200:
-                    ticker_response = requests.get(url).json()
-                    risky_companies.append(ticker_response["results"][0]["name"])
+            winner_expensive = sorted(top_7_winners[:int((len(top_7_winners)/2))], key=lambda x: x['price'], reverse=True)
+            winner_not_expensive = sorted(top_7_winners[int((len(top_7_winners)) / 2):], key=lambda x: x['price'])
 
-            ticks_with_prices = {}
-
-            for ticker in risky_companies:
-                tick = yf.Ticker(ticker)
-
-                ticks_with_prices[ticker] = np.average(np.array(tick.history(period="1mo")["High"]))
-
-            keys = list(ticks_with_prices.keys())
-            values = list(ticks_with_prices.values())
-            sorted_value_index = reversed(np.argsort(values))
-            sorted_dict = {keys[i]: values[i] for i in sorted_value_index}
+            loser_expensive = sorted(top_7_losers[:int((len(top_7_losers) / 2))], key=lambda x: x['price'], reverse=True)
+            loser_not_expensive = sorted(top_7_losers[int((len(top_7_losers)) / 2):], key=lambda x: x['price'])
 
             if investment_amount > 140000:
 
                 print(f"Great news! We have a list of high-risk higher-price stocks just for you!")
-                print(f"{sorted_dict.values()[:len(sorted_dict.values())/2]}")
-
+                print_list = [winner_expensive, loser_expensive]
+                print(print_list)
+                
             if investment_amount < 140000:
                 # Suggest pricey stocks
                 print(f"Great news! We have a list of high-risk lower-price stocks just for you!")
-                print(f"{sorted_dict.values()[[len(sorted_dict.values())/2]:]}")
+                print_list = [winner_not_expensive, loser_not_expensive]
+                print(print_list)
 
