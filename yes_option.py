@@ -2,7 +2,8 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
+import requests
+import yfinance as yf
 
 data = pd.read_csv("data.csv")
 
@@ -99,8 +100,47 @@ elif decision == 1:
             investment_amount = loan_amount+cash_to_invest
             print(f"Including your personal cash, your investment capital is roughly {investment_amount}")
 
+            url = 'https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=GN93EPRI42VAHGHX'
+            r = requests.get(url)
+            data = r.json()
+            riskiest = []
+
+            for entry in data["top_gainers"][:7]:
+                riskiest.append(entry["ticker"])
+
+            for entry in data["top_losers"][:7]:
+                riskiest.append(entry["ticker"])
+
+            # Risky companies is a list of companies that are risky, regardless of price
+            risky_companies = []
+
+            for ticker in riskiest:
+                url = f"https://api.polygon.io/v3/reference/tickers?ticker={ticker}&active=true&apiKey=VFSwKNWbH7pv7Yp98ayguccA6KVAJYjr"
+                print(requests.get(url).status_code)
+                if requests.get(url).status_code == 200:
+                    ticker_response = requests.get(url).json()
+                    risky_companies.append(ticker_response["results"][0]["name"])
+
+            ticks_with_prices = {}
+
+            for ticker in risky_companies:
+                tick = yf.Ticker(ticker)
+
+                ticks_with_prices[ticker] = np.average(np.array(tick.history(period="1mo")["High"]))
+
+            keys = list(ticks_with_prices.keys())
+            values = list(ticks_with_prices.values())
+            sorted_value_index = reversed(np.argsort(values))
+            sorted_dict = {keys[i]: values[i] for i in sorted_value_index}
+
+            if investment_amount > 140000:
+                
+                print(f"Great news! We have a list of high-risk higher-price stocks just for you!")
+                print(f"{sorted_dict.values()[:len(sorted_dict.values())/2]}")
+
             if investment_amount < 140000:
-
-
+                # Suggest pricey stocks
+                print(f"Great news! We have a list of high-risk lower-price stocks just for you!")
+                print(f"{sorted_dict.values()[[len(sorted_dict.values())/2]:]}")
 
 
