@@ -3,7 +3,18 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 import requests
-import yfinance as yf
+import tkinter as tk
+
+app = tk.Tk()
+app.title("Intellivest")
+app.iconbitmap("Intellivest.ico")
+
+def make_text(text):
+    output_text = tk.Text(app, wrap="word", foreground="white", background="purple", font="Courier")
+    output_text.grid(row=0, column=0, padx=10, pady=10)
+
+    # Insert the text into the Text widget
+    output_text.insert(tk.END, text)
 
 
 data = pd.read_csv("data.csv")
@@ -60,44 +71,40 @@ credit = forest.predict([[income, cash_salary, num_of_bank_acc, num_cards, rate,
 print(f"Your predicted credit score is: {credit[0]}")
 
 # Doesn't want to invest path
-decision = int(input("Would you say that you want to invest? (Enter a 0 for no or a 1 for yes) "))
+decision = int(input("Would you say that you want to invest? (Enter a 0 for no or a 1 for yes)" ))
 
 if decision == 0:
 
     if credit[0] == "Poor":
-        print(f"Ok, we suggest that you try and improve your credit score by paying bills on time, "
-              f"strategically paying credit balances, and getting credit for utility and rent payments!")
-        print()
-        print(f"You may also want to check out resources like NerdWallet, Experian, Investopedia, and online forums to "
-              f"find ways to improve your credit score!")
-
+        make_text("Ok,we suggest that you try and improve your credit score by paying bills on time, strategically paying credit balances, and getting credit for utility and rent payments. You may also want to check out resources like NerdWallet, Experian, Investopedia, and online forums to find ways to improve your credit score!")
     if credit[0] == "Standard" or credit[0] == "Good":
-        print("Ok! Your credit score is in a good spot to begin investing! We advice that "
-              "you begin researching ways to invest your money, as letting it sit will only deprecate it's value")
-
-        print("Some investment opportunities include, but aren't limited to stocks, "
-              "bonds, real estate, commodities, and foreign currency")
-        print(f"You may also want to check out resources like Fidelity Investments, Stock Exchange, Investopedia, and "
-              f"online forums to begin your journey in investment!")
-
+        make_text("Ok! Your credit score is in a good spot to begin investing! We advice that you begin researching ways to invest your money, as letting it sit will only deprecate it's value. Some investment opportunities include, but aren't limited to stocks, bonds, real estate, commodities, and foreign currency. You may also want to check out resources like Fidelity Investments, Stock Exchange, Investopedia, and online forums to begin your journey in investment!")
 
 elif decision == 1:
-    cash_to_invest = int(input("Great! How much CASH would you say that you could invest?"))
+    cash_to_invest = int(input("Great! How much CASH would you say that you could invest? "))
 
-    loan_decision = int(input("Would you want to take a loan out to invest with? (0 for no, 1 for yes)"))
+    loan_decision = int(input("Would you want to take a loan out to invest with? (0 for no, 1 for yes) "))
+
+    if loan_decision == 0:
+        if cash_to_invest == 10000:
+            make_text("From sources across the web we advise you to invest in REIT's, "
+                      "your emergency fund(s), and maxing out your IRA to optimize how money you'll have in the future")
+        elif cash_to_invest < 10000:
+            make_text("From sources across the web we advise you to invest in index funds, real estate, stocks, and e-commerce")
+        else:
+            make_text("From sources across the web we advise you to invest in high-yield savings, bonds, stocks, and mutual funds")
 
     # If they want to invest
     if loan_decision == 1:
 
         # If they can't get a loan
         if credit[0] == "Poor":
-            print(f"Unfortunately, you wouldn't qualify for a loan but with your cash you can invest in low-risk assets "
-                  f"such as:")
-            print(f"S&P 500, Treasury Bonds, Dividend Stocks, and Renting out home spaces")
 
+            make_text("Unfortunately, you wouldn't qualify for a loan but with your cash you can invest in low-risk assets such as:\n"
+                      "S&P 500, Treasury Bonds, Dividend Stocks, and Renting out home spaces")
         if credit[0] != "Poor":
             loan_amount = int(input(f"Fortunately, you WOULD qualify for a loan! How big of a loan would you want for "
-                                    f"investing?"))
+                                    f"investing? "))
 
             if credit[0] == "Standard":
                 loan_amount = int(loan_amount*.75)
@@ -125,13 +132,29 @@ elif decision == 1:
 
             if investment_amount > 140000:
 
-                print(f"Great news! We have a list of high-risk higher-price stocks just for you!")
-                print_list = [winner_expensive, loser_expensive]
-                print(print_list)
-                
+                print_list = []
+                for company in winner_expensive:
+                    print_list.append(company["name"])
+                for company in loser_expensive:
+                    print_list.append(company["name"])
+
+                make_text(text=f"Great news! We have a list of high-risk higher-price stocks just for you!         "
+                               f"          "
+                               f"{print_list}")
+
             if investment_amount < 140000:
                 # Suggest pricey stocks
-                print(f"Great news! We have a list of high-risk lower-price stocks just for you!")
-                print_list = [winner_not_expensive, loser_not_expensive]
-                print(print_list)
+
+                print_list = []
+                for company in winner_not_expensive:
+                    print_list.append(company["name"])
+                for company in loser_not_expensive:
+                    print_list.append(company["name"])
+
+
+                make_text(text= f"Great news! We have a list of high-risk lower-price stocks just for you!         "
+                                f"          "
+                                f"{print_list}")
+
+app.mainloop()
 
