@@ -1,13 +1,22 @@
 import requests
+import json
 
-response_json = requests.get("https://financialmodelingprep.com/api/v3/stock_market/gainers?apikey=660b686a5741c3a14db31b0f2dc9ce41").json()
+url = 'https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=2RP8A05B6JJ2RP71'
+r = requests.get(url)
+data = r.json()
 
-top_7_winners = response_json[:7]
-print(top_7_winners)
+riskiest = []
 
-response_json = requests.get("https://financialmodelingprep.com/api/v3/stock_market/losers?apikey=660b686a5741c3a14db31b0f2dc9ce41").json()
+for entry in data["top_gainers"][:5]:
+	riskiest.append(entry["ticker"])
 
-top_7_losers = response_json[len(response_json)-7:]
-print(top_7_losers)
+for entry in data["top_losers"][:5]:
+	riskiest.append(entry["ticker"])
 
-print(top_7_losers[0]["name"])
+print(riskiest)
+
+ticker_response = requests.get("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=tesco&apikey"
+                               "=2RP8A05B6JJ2RP71").json()
+
+print(ticker_response)
+
